@@ -1,14 +1,11 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "username/string_zipper"
+package "bzy-debug/string_zipper"
 
 import(
   "moonbitlang/core/string"
 )
 
 // Values
-fn add_buffer_between(StringBuilder, StringZipper, StringZipper) -> Unit
-
-fn drop_until(StringZipper, StringZipper) -> StringZipper
 
 // Errors
 
@@ -33,7 +30,9 @@ pub struct StringZipper {
   line : Int
   right : Array[@string.View]
 }
+fn StringZipper::add_buffer_between(Self, StringBuilder, Self) -> Unit
 fn StringZipper::apply_change(Self, Range, replacement~ : String) -> Self
+fn StringZipper::drop_until(Self, Self) -> Self
 fn StringZipper::goto_end(Self) -> Self
 fn StringZipper::goto_line(Self, Int) -> Self
 fn StringZipper::goto_position(Self, Position) -> Self

@@ -1,5 +1,5 @@
 ///| String Zipper - A data structure for efficient text editing operations
-/// 
+///
 /// A zipper represents a position in a text document and allows efficient
 /// insertion, deletion, and navigation operations. The cursor position is
 /// maintained with line/column information.
@@ -7,7 +7,7 @@
 ///|
 /// The main zipper data structure
 pub struct StringZipper {
-  left : Array[@string.View] // string views to the left of cursor  
+  left : Array[@string.View] // string views to the left of cursor
   rel_pos : Int // cursor position within current string view
   abs_pos : Int // total length of strings in left
   current : @string.View // current string view containing cursor
@@ -279,8 +279,11 @@ pub fn goto_end(self : StringZipper) -> StringZipper {
 
 ///|
 /// Drops content from one zipper position until another
-pub fn drop_until(from : StringZipper, until : StringZipper) -> StringZipper {
-  drop_until_internal(from, until)
+pub fn StringZipper::drop_until(
+  self : StringZipper,
+  until : StringZipper,
+) -> StringZipper {
+  drop_until_internal(self, until)
 }
 
 ///|
@@ -313,7 +316,7 @@ pub fn apply_change(
     zipper.goto_line(range.end.line)
   }
   let end_zipper = end_zipper.advance_chars(delta_character)
-  let result = drop_until(zipper, end_zipper)
+  let result = zipper.drop_until(end_zipper)
   result.insert(replacement)
 }
 
@@ -358,13 +361,13 @@ pub fn to_string_debug(self : StringZipper) -> String {
 ///|
 /// Add buffer between two zipper positions
 /// Corresponds to OCaml's add_buffer_between : Buffer.t -> t -> t -> unit
-pub fn add_buffer_between(
+pub fn StringZipper::add_buffer_between(
+  self : StringZipper,
   buffer : StringBuilder,
-  from : StringZipper,
   until : StringZipper,
 ) -> Unit {
   // Extract the text between the two positions and add to buffer
-  let text_between = drop_until(from, until).to_string()
+  let text_between = self.drop_until(until).to_string()
   buffer.write_string(text_between)
 }
 

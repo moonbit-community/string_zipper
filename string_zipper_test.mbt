@@ -81,7 +81,7 @@ test "drop_until functionality" {
   let pos2 = @string_zipper.Position::new(0, 11) // At end
   let zipper2 = zipper1.goto_position(pos1)
   let zipper3 = zipper1.goto_position(pos2)
-  let result = @string_zipper.drop_until(zipper2, zipper3)
+  let result = zipper2.drop_until(zipper3)
   inspect(result.to_string(), content="hello ")
 }
 
