@@ -1,0 +1,16 @@
+{
+  "name": "bzy-debug/string_zipper",
+  "version": "0.1.0",
+  "readme": "README.md",
+  "repository": "https://github.com/moonbit-community/string_zipper",
+  "license": "Apache-2.0",
+  "keywords": [
+    "text-editing",
+    "zipper",
+    "cursor",
+    "navigation",
+    "string-manipulation",
+    "production-ready"
+  ],
+  "description": "A production-ready text editing data structure with efficient cursor navigation and proper Unicode handling"
+}

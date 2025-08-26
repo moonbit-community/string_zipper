@@ -1,0 +1,50 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "username/string_zipper"
+
+import(
+  "moonbitlang/core/string"
+)
+
+// Values
+fn add_buffer_between(StringBuilder, StringZipper, StringZipper) -> Unit
+
+fn drop_until(StringZipper, StringZipper) -> StringZipper
+
+// Errors
+
+// Types and methods
+pub struct Position {
+  line : Int
+  character : Int
+}
+fn Position::new(Int, Int) -> Self
+
+pub struct Range {
+  start : Position
+  end : Position
+}
+fn Range::new(Position, Position) -> Self
+
+pub struct StringZipper {
+  left : Array[@string.View]
+  rel_pos : Int
+  abs_pos : Int
+  current : @string.View
+  line : Int
+  right : Array[@string.View]
+}
+fn StringZipper::apply_change(Self, Range, replacement~ : String) -> Self
+fn StringZipper::goto_end(Self) -> Self
+fn StringZipper::goto_line(Self, Int) -> Self
+fn StringZipper::goto_position(Self, Position) -> Self
+fn StringZipper::insert(Self, String) -> Self
+fn StringZipper::of_string(String) -> Self
+fn StringZipper::offset(Self) -> Int
+fn StringZipper::squash(Self) -> (Self, String)
+fn StringZipper::to_string(Self) -> String
+fn StringZipper::to_string_debug(Self) -> String
+
+// Type aliases
+
+// Traits
+
