@@ -5,7 +5,7 @@ test "basic creation and conversion" {
   let zipper = @string_zipper.StringZipper::of_string("hello")
   inspect(zipper.to_string(), content="hello")
   inspect(zipper.offset(), content="0")
-  inspect(zipper.line, content="0")
+  inspect(zipper.line(), content="0")
 }
 
 ///|
@@ -52,7 +52,7 @@ test "text insertion" {
 ///|
 test "goto_line functionality" {
   let zipper = @string_zipper.StringZipper::of_string("line1\nline2\nline3")
-  inspect(zipper.line, content="0")
+  inspect(zipper.line(), content="0")
 
   // Go to line 1
   let zipper2 = zipper.goto_line(1)

@@ -1,10 +1,6 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "bzy-debug/string_zipper"
 
-import(
-  "moonbitlang/core/string"
-)
-
 // Values
 
 // Errors
@@ -23,12 +19,7 @@ pub struct Range {
 fn Range::new(Position, Position) -> Self
 
 pub struct StringZipper {
-  left : Array[@string.View]
-  rel_pos : Int
-  abs_pos : Int
-  current : @string.View
-  line : Int
-  right : Array[@string.View]
+  // private fields
 }
 fn StringZipper::add_buffer_between(Self, StringBuilder, Self) -> Unit
 fn StringZipper::apply_change(Self, Range, replacement~ : String) -> Self
@@ -37,6 +28,7 @@ fn StringZipper::goto_end(Self) -> Self
 fn StringZipper::goto_line(Self, Int) -> Self
 fn StringZipper::goto_position(Self, Position) -> Self
 fn StringZipper::insert(Self, String) -> Self
+fn StringZipper::line(Self) -> Int
 fn StringZipper::of_string(String) -> Self
 fn StringZipper::offset(Self) -> Int
 fn StringZipper::squash(Self) -> (Self, String)

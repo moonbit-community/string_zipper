@@ -7,12 +7,12 @@
 ///|
 /// The main zipper data structure
 pub struct StringZipper {
-  left : Array[@string.View] // string views to the left of cursor
-  rel_pos : Int // cursor position within current string view
-  abs_pos : Int // total length of strings in left
-  current : @string.View // current string view containing cursor
-  line : Int // number of '\n' characters traversed
-  right : Array[@string.View] // string views to the right of cursor
+  priv left : Array[@string.View] // string views to the left of cursor
+  priv rel_pos : Int // cursor position within current string view
+  priv abs_pos : Int // total length of strings in left
+  priv current : @string.View // current string view containing cursor
+  priv line : Int // number of '\n' characters traversed
+  priv right : Array[@string.View] // string views to the right of cursor
 }
 
 ///|
@@ -25,6 +25,12 @@ pub fn StringZipper::of_string(s : String) -> StringZipper {
 /// Gets the absolute offset position of the cursor
 pub fn offset(self : StringZipper) -> Int {
   self.abs_pos + self.rel_pos
+}
+
+///|
+/// Gets the current line number (0-based)
+pub fn line(self : StringZipper) -> Int {
+  self.line
 }
 
 ///|
