@@ -349,18 +349,41 @@ pub fn squash(self : StringZipper) -> (StringZipper, String) {
 }
 
 ///|
-/// Debug representation of the zipper
+/// Debug representation of the zipper with cursor position
 /// Corresponds to OCaml's to_string_debug : t -> string
+/// Formats as: line N: "text|with|cursor" with escaped newlines
 pub fn to_string_debug(self : StringZipper) -> String {
   let builder = StringBuilder::new()
-  builder.write_string("StringZipper{")
-  builder.write_string("left=\{self.left.length()}, ")
-  builder.write_string("rel_pos=\{self.rel_pos}, ")
-  builder.write_string("abs_pos=\{self.abs_pos}, ")
-  builder.write_string("line=\{self.line}, ")
-  builder.write_string("right=\{self.right.length()}, ")
-  builder.write_string("current=\"\{self.current.to_string()}\"")
-  builder.write_string("}")
+
+  // Add left string views in reverse order
+  for i = self.left.length() - 1; i >= 0; i = i - 1 {
+    builder.write_string(self.left[i].to_string())
+  }
+
+  // Add current string view up to cursor position
+  let current_str = self.current.to_string()
+  let prefix = if self.rel_pos <= current_str.length() {
+    current_str.substring(start=0, end=self.rel_pos)
+  } else {
+    current_str
+  }
+  builder.write_string(prefix)
+
+  // Add cursor marker
+  builder.write_string("|")
+
+  // Add rest of current string view
+  let suffix = if self.rel_pos < current_str.length() {
+    current_str.substring(start=self.rel_pos)
+  } else {
+    ""
+  }
+  builder.write_string(suffix)
+
+  // Add right string views
+  for view in self.right {
+    builder.write_string(view.to_string())
+  }
   builder.to_string()
 }
 

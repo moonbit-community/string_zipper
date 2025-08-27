@@ -47,11 +47,19 @@ test "complex multiline scenarios" {
 
   // Test goto_end from different positions
   let end_from_line2 = line2.goto_end()
-  inspect(end_from_line2.to_string(), content="a\nb\nc")
+  inspect(end_from_line2.to_string(), content=(
+    #|a
+    #|b
+    #|c
+  ))
 
   // Test large position jumps that might trigger edge cases
   let large_pos = zipper.goto_position(Position::new(10, 50)) // Beyond document
-  inspect(large_pos.to_string(), content="a\nb\nc")
+  inspect(large_pos.to_string(), content=(
+    #|a
+    #|b
+    #|c
+  ))
 }
 
 ///|
@@ -81,10 +89,19 @@ test "boundary navigation edge cases" {
   // Navigate to end and try to go further
   let at_end = zipper.goto_end()
   let still_at_end = at_end.goto_line(100) // Try to go beyond
-  inspect(still_at_end.to_string(), content="line1\nline2\nline3\n")
+  inspect(still_at_end.to_string(), content=(
+    #|line1
+    #|line2
+    #|line3
+    #|
+  ))
 
   // Test apply_change that might create edge case scenarios
   let range = Range::new(Position::new(1, 0), Position::new(2, 5))
   let changed = zipper.apply_change(range, replacement="REPLACED")
-  inspect(changed.to_string(), content="line1\nREPLACED\n")
+  inspect(changed.to_string(), content=(
+    #|line1
+    #|REPLACED
+    #|
+  ))
 }

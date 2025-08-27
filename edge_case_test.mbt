@@ -39,7 +39,10 @@ test "find_next_nl with right segments" {
 
   // Now navigate to test find_next_nl with segments
   let zipper3 = zipper2.goto_line(1)
-  inspect(zipper3.to_string(), content="prefixline1\nline2")
+  inspect(zipper3.to_string(), content=(
+    #|prefixline1
+    #|line2
+  ))
 }
 
 ///|
@@ -57,7 +60,10 @@ test "advance_char_internal with right segments" {
   // Continue navigating to test advance_char_internal
   let pos2 = @string_zipper.Position::new(1, 1)
   let zipper4 = zipper3.goto_position(pos2)
-  inspect(zipper4.to_string(), content="Xab\ncd")
+  inspect(zipper4.to_string(), content=(
+    #|Xab
+    #|cd
+  ))
 }
 
 ///|
@@ -85,7 +91,11 @@ test "beginning_of_line_internal complex case" {
 
   // Now go to beginning of line to test beginning_of_line_internal
   let zipper4 = zipper3.goto_line(1)
-  inspect(zipper4.to_string(), content="line0\nlinXXXe1\nline2")
+  inspect(zipper4.to_string(), content=(
+    #|line0
+    #|linXXXe1
+    #|line2
+  ))
 }
 
 ///|
@@ -163,7 +173,12 @@ test "multiline operations with complex segments" {
   let zipper6 = zipper5.goto_line(0)
   let zipper7 = zipper6.goto_line(3)
   let zipper8 = zipper7.goto_line(1)
-  inspect(zipper8.to_string(), content="a\nX1b\ncX2\nd")
+  inspect(zipper8.to_string(), content=(
+    #|a
+    #|X1b
+    #|cX2
+    #|d
+  ))
 }
 
 ///|
@@ -216,6 +231,11 @@ test "comprehensive navigation test" {
   let zipper5 = zipper4.goto_line(0)
   let zipper6 = zipper5.goto_end()
   let zipper7 = zipper6.goto_line(1)
-  inspect(zipper7.to_string(), content="line0\nline1\nliINSERTEDne2\nline3")
+  inspect(zipper7.to_string(), content=(
+    #|line0
+    #|line1
+    #|liINSERTEDne2
+    #|line3
+  ))
   inspect(zipper7.line(), content="1")
 }
