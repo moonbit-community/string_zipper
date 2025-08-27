@@ -1,3 +1,6 @@
+[![check](https://github.com/moonbit-community/string_zipper/actions/workflows/ci.yml/badge.svg)](https://github.com/moonbit-community/string_zipper/actions/workflows/ci.yml) [![Coverage Status](https://coveralls.io/repos/github/moonbit-community/string_zipper/badge.svg?branch=main)](https://coveralls.io/github/moonbit-community/string_zipper?branch=main)
+
+
 # StringZipper
 
 A MoonBit port of the OCaml LSP string zipper data structure. This library provides efficient text editing operations with cursor position tracking, specifically designed for LSP (Language Server Protocol) implementations.
