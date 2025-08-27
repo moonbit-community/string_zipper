@@ -7,18 +7,25 @@
 ///|
 /// The main zipper data structure
 pub struct StringZipper {
-  priv left : Array[@string.View] // string views to the left of cursor
+  priv left : @list.List[@string.View] // string views to the left of cursor
   priv rel_pos : Int // cursor position within current string view
   priv abs_pos : Int // total length of strings in left
   priv current : @string.View // current string view containing cursor
   priv line : Int // number of '\n' characters traversed
-  priv right : Array[@string.View] // string views to the right of cursor
+  priv right : @list.List[@string.View] // string views to the right of cursor
 }
 
 ///|
 /// Creates a string zipper from a string
 pub fn StringZipper::of_string(s : String) -> StringZipper {
-  { left: [], rel_pos: 0, abs_pos: 0, current: s.view(), right: [], line: 0 }
+  {
+    left: @list.empty(),
+    rel_pos: 0,
+    abs_pos: 0,
+    current: s.view(),
+    right: @list.empty(),
+    line: 0,
+  }
 }
 
 ///|
@@ -39,9 +46,10 @@ fn to_string_and_pos(self : StringZipper) -> (String, Int, Int) {
   // Use StringBuilder for efficient string building
   let builder = StringBuilder::new()
 
-  // Add left string views in reverse order
-  for i = self.left.length() - 1; i >= 0; i = i - 1 {
-    builder.write_string(self.left[i].to_string())
+  // Add left string views in reverse order (since they were prepended)
+  let left_array = self.left.to_array()
+  for i = left_array.length() - 1; i >= 0; i = i - 1 {
+    builder.write_string(left_array[i].to_string())
   }
   let final_pos = builder.to_string().length() + self.rel_pos
 
@@ -49,9 +57,7 @@ fn to_string_and_pos(self : StringZipper) -> (String, Int, Int) {
   builder.write_string(self.current.to_string())
 
   // Add right string views
-  for view in self.right {
-    builder.write_string(view.to_string())
-  }
+  self.right.each(fn(view) { builder.write_string(view.to_string()) })
   (builder.to_string(), final_pos, self.line)
 }
 
@@ -63,18 +69,15 @@ pub fn to_string(self : StringZipper) -> String {
 }
 
 ///|
-/// Helper function to add string view to array if not empty
-fn cons(view : @string.View, arr : Array[@string.View]) -> Array[@string.View] {
+/// Helper function to add string view to list if not empty
+fn cons(
+  view : @string.View,
+  list : @list.List[@string.View],
+) -> @list.List[@string.View] {
   if view.length() == 0 {
-    arr
+    list
   } else {
-    // Use proper Array operations from standard library
-    let new_arr : Array[@string.View] = Array::new(capacity=arr.length() + 1)
-    new_arr.push(view)
-    for elem in arr {
-      new_arr.push(elem)
-    }
-    new_arr
+    list.add(view)
   }
 }
 
@@ -190,21 +193,20 @@ fn find_next_nl(self : StringZipper) -> StringZipper {
   match index_from_view(self.current, pos=self.rel_pos, '\n') {
     Some(rel_pos) => { ..self, rel_pos, }
     None =>
-      if self.right.length() == 0 {
-        { ..self, rel_pos: self.current.length() }
-      } else {
-        let current = self.right[0]
-        let new_right = self.right[1:].to_array()
-        let abs_pos = self.abs_pos + self.current.length()
-        let new_zipper = {
-          ..self,
-          current,
-          left: cons(self.current, self.left),
-          right: new_right,
-          rel_pos: 0,
-          abs_pos,
+      match self.right {
+        Empty => { ..self, rel_pos: self.current.length() }
+        More(current, tail=new_right) => {
+          let abs_pos = self.abs_pos + self.current.length()
+          let new_zipper = {
+            ..self,
+            current,
+            left: cons(self.current, self.left),
+            right: new_right,
+            rel_pos: 0,
+            abs_pos,
+          }
+          new_zipper.find_next_nl()
         }
-        new_zipper.find_next_nl()
       }
   }
 }
@@ -232,20 +234,19 @@ fn prev_newline(self : StringZipper) -> StringZipper {
   match rindex_from_view(self.current, pos=self.rel_pos, '\n') {
     Some(rel_pos) => { ..self, rel_pos, line: self.line - 1 }
     None =>
-      if self.left.length() == 0 {
-        { ..self, rel_pos: 0 }
-      } else {
-        let current = self.left[0]
-        let new_left = self.left[1:].to_array()
-        let new_zipper = {
-          ..self,
-          current,
-          left: new_left,
-          rel_pos: current.length(),
-          abs_pos: self.abs_pos + self.current.length(),
-          right: cons(self.current, self.right),
+      match self.left {
+        Empty => { ..self, rel_pos: 0 }
+        More(current, tail=new_left) => {
+          let new_zipper = {
+            ..self,
+            current,
+            left: new_left,
+            rel_pos: current.length(),
+            abs_pos: self.abs_pos + self.current.length(),
+            right: cons(self.current, self.right),
+          }
+          new_zipper.prev_newline()
         }
-        new_zipper.prev_newline()
       }
   }
 }
@@ -355,9 +356,10 @@ pub fn squash(self : StringZipper) -> (StringZipper, String) {
 pub fn to_string_debug(self : StringZipper) -> String {
   let builder = StringBuilder::new()
 
-  // Add left string views in reverse order
-  for i = self.left.length() - 1; i >= 0; i = i - 1 {
-    builder.write_string(self.left[i].to_string())
+  // Add left string views in reverse order (since they were prepended)
+  let left_array = self.left.to_array()
+  for i = left_array.length() - 1; i >= 0; i = i - 1 {
+    builder.write_string(left_array[i].to_string())
   }
 
   // Add current string view up to cursor position
@@ -381,9 +383,7 @@ pub fn to_string_debug(self : StringZipper) -> String {
   builder.write_string(suffix)
 
   // Add right string views
-  for view in self.right {
-    builder.write_string(view.to_string())
-  }
+  self.right.each(fn(view) { builder.write_string(view.to_string()) })
   builder.to_string()
 }
 
@@ -408,8 +408,9 @@ pub fn StringZipper::add_buffer_between(
 fn StringZipper::is_end_internal(self : StringZipper) -> Bool {
   let res = self.current.length() == self.rel_pos
   if res {
-    if self.right.length() > 0 {
-      abort("invalid state: current = \{self.current.to_string()}")
+    match self.right {
+      Empty => ()
+      _ => abort("invalid state: current = \{self.current.to_string()}")
     }
   }
   res
@@ -418,7 +419,10 @@ fn StringZipper::is_end_internal(self : StringZipper) -> Bool {
 ///|
 /// Checks if cursor is at the beginning of the text (internal helper)
 fn StringZipper::is_begin_internal(self : StringZipper) -> Bool {
-  self.left.length() == 0 && self.rel_pos == 0
+  match self.left {
+    Empty => self.rel_pos == 0
+    _ => false
+  }
 }
 
 ///|
@@ -449,18 +453,18 @@ fn StringZipper::advance_char_internal(self : StringZipper) -> StringZipper {
   let rel_pos = self.rel_pos + 1
   if rel_pos < current_len {
     { ..self, rel_pos, line }
-  } else if self.right.length() == 0 {
-    { ..self, rel_pos, line }
   } else {
-    let current = self.right[0]
-    let new_right = self.right[1:].to_array()
-    {
-      abs_pos: self.abs_pos + self.current.length(),
-      left: cons(self.current, self.left),
-      current,
-      line,
-      right: new_right,
-      rel_pos: 0,
+    match self.right {
+      Empty => { ..self, rel_pos, line }
+      More(current, tail=new_right) =>
+        {
+          abs_pos: self.abs_pos + self.current.length(),
+          left: cons(self.current, self.left),
+          current,
+          line,
+          right: new_right,
+          rel_pos: 0,
+        }
     }
   }
 }
@@ -496,18 +500,19 @@ fn drop_until_internal(
   }
   let right = cons(drop_view(until.current, until.rel_pos), until.right)
   let left = cons(take_view(from.current, from.rel_pos), from.left)
-  if right.length() > 0 {
-    let current = right[0]
-    let new_right = right[1:].to_array()
-    let abs_pos = from.abs_pos + from.current.length()
-    { ..from, right: new_right, left, abs_pos, current, rel_pos: 0 }
-  } else if left.length() == 0 {
-    StringZipper::of_string("")
-  } else {
-    let current = left[0]
-    let new_left = left[1:].to_array()
-    let rel_pos = current.length()
-    let abs_pos = from.abs_pos + rel_pos
-    { ..from, right, left: new_left, current, rel_pos, abs_pos }
+  match right {
+    More(current, tail=new_right) => {
+      let abs_pos = from.abs_pos + from.current.length()
+      { ..from, right: new_right, left, abs_pos, current, rel_pos: 0 }
+    }
+    Empty =>
+      match left {
+        Empty => StringZipper::of_string("")
+        More(current, tail=new_left) => {
+          let rel_pos = current.length()
+          let abs_pos = from.abs_pos + rel_pos
+          { ..from, right, left: new_left, current, rel_pos, abs_pos }
+        }
+      }
   }
 }
