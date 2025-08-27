@@ -50,10 +50,13 @@ test "navigation at end of document" {
 
   // Try to go forward from end (should stay at end)
   let zipper3 = zipper2.goto_line(5) // Non-existent line
-  inspect(zipper3.to_string(), content=(
-    #|line0
-    #|line1
-  ))
+  inspect(
+    zipper3.to_string(),
+    content=(
+      #|line0
+      #|line1
+    ),
+  )
 }
 
 ///|
@@ -94,11 +97,14 @@ test "complex multiline operations" {
 
   // Insert text that will create new segments
   let zipper3 = zipper2.insert("inserted")
-  inspect(zipper3.to_string(), content=(
-    #|line0
-    #|liinsertedne1
-    #|line2
-  ))
+  inspect(
+    zipper3.to_string(),
+    content=(
+      #|line0
+      #|liinsertedne1
+      #|line2
+    ),
+  )
 }
 
 ///|
@@ -110,11 +116,14 @@ test "navigation with newlines in segments" {
   let pos = @string_zipper.Position::new(1, 1) // Middle of "def"
   let zipper2 = zipper.goto_position(pos)
   let zipper3 = zipper2.insert("XYZ")
-  inspect(zipper3.to_string(), content=(
-    #|abc
-    #|dXYZef
-    #|ghi
-  ))
+  inspect(
+    zipper3.to_string(),
+    content=(
+      #|abc
+      #|dXYZef
+      #|ghi
+    ),
+  )
 
   // Now navigate around to test segment handling
   let zipper4 = zipper3.goto_line(0)

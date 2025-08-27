@@ -67,19 +67,25 @@ test "goto_line functionality" {
 test "goto_end functionality" {
   let zipper = @string_zipper.StringZipper::of_string("line0\nline1\nline2")
   let zipper2 = zipper.goto_end()
-  inspect(zipper2.to_string(), content=(
-    #|line0
-    #|line1
-    #|line2
-  ))
+  inspect(
+    zipper2.to_string(),
+    content=(
+      #|line0
+      #|line1
+      #|line2
+    ),
+  )
 
   // Test that goto_end goes to the actual end
   let zipper3 = zipper2.insert("!")
-  inspect(zipper3.to_string(), content=(
-    #|line0
-    #|line1
-    #|line2!
-  ))
+  inspect(
+    zipper3.to_string(),
+    content=(
+      #|line0
+      #|line1
+      #|line2!
+    ),
+  )
 }
 
 ///|
@@ -113,11 +119,14 @@ test "multiline apply_change" {
   let end_pos = @string_zipper.Position::new(1, 4)
   let range = @string_zipper.Range::new(start_pos, end_pos)
   let zipper2 = zipper.apply_change(range, replacement=" A\nline B")
-  inspect(zipper2.to_string(), content=(
-    #|line A
-    #|line B2
-    #|line3
-  ))
+  inspect(
+    zipper2.to_string(),
+    content=(
+      #|line A
+      #|line B2
+      #|line3
+    ),
+  )
 }
 
 ///|

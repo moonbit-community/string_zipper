@@ -75,13 +75,16 @@ test "newline handling in segments" {
   let zipper4 = zipper3.goto_line(0)
   let zipper5 = zipper4.goto_line(3)
   let zipper6 = zipper5.goto_line(1)
-  inspect(zipper6.to_string(), content=(
-    #|a
-    #|X
-    #|Y
-    #|b
-    #|c
-  ))
+  inspect(
+    zipper6.to_string(),
+    content=(
+      #|a
+      #|X
+      #|Y
+      #|b
+      #|c
+    ),
+  )
 }
 
 ///|
@@ -119,11 +122,13 @@ test "squash with complex structures" {
 
   // Squash it
   let (squashed, str) = zipper4.squash()
-  inspect(str, content=(
-    
-    #|linXXXe1
-    #|line2
-  ))
+  inspect(
+    str,
+    content=(
+      #|linXXXe1
+      #|line2
+    ),
+  )
   inspect(squashed.offset(), content="11")
 }
 
@@ -156,11 +161,14 @@ test "beginning_of_line with complex cases" {
 
   // Go to beginning of line (should test beginning_of_line_internal)
   let zipper4 = zipper3.goto_line(1)
-  inspect(zipper4.to_string(), content=(
-    #|line0
-    #|linMIDDLEe1
-    #|line2
-  ))
+  inspect(
+    zipper4.to_string(),
+    content=(
+      #|line0
+      #|linMIDDLEe1
+      #|line2
+    ),
+  )
 
   // Verify we're at beginning of line 1
   let _expected_offset = 6 // Length of "line0\n"
@@ -197,18 +205,21 @@ test "large position jumps" {
   let zipper4 = zipper3.goto_line(5) // Middle
   let zipper5 = zipper4.goto_line(2) // Back
   inspect(zipper5.line(), content="2")
-  inspect(zipper5.to_string(), content=(
-    #|a
-    #|b
-    #|c
-    #|d
-    #|e
-    #|f
-    #|g
-    #|h
-    #|i
-    #|j
-  ))
+  inspect(
+    zipper5.to_string(),
+    content=(
+      #|a
+      #|b
+      #|c
+      #|d
+      #|e
+      #|f
+      #|g
+      #|h
+      #|i
+      #|j
+    ),
+  )
 }
 
 ///|
