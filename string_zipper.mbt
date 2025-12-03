@@ -7,12 +7,12 @@
 ///|
 /// The main zipper data structure
 pub struct StringZipper {
-  priv left : @list.List[@string.View] // string views to the left of cursor
+  priv left : @list.List[StringView] // string views to the left of cursor
   priv rel_pos : Int // cursor position within current string view
   priv abs_pos : Int // total length of strings in left
-  priv current : @string.View // current string view containing cursor
+  priv current : StringView // current string view containing cursor
   priv line : Int // number of '\n' characters traversed
-  priv right : @list.List[@string.View] // string views to the right of cursor
+  priv right : @list.List[StringView] // string views to the right of cursor
 }
 
 ///|
@@ -30,19 +30,19 @@ pub fn StringZipper::of_string(s : String) -> StringZipper {
 
 ///|
 /// Gets the absolute offset position of the cursor
-pub fn offset(self : StringZipper) -> Int {
+pub fn StringZipper::offset(self : StringZipper) -> Int {
   self.abs_pos + self.rel_pos
 }
 
 ///|
 /// Gets the current line number (0-based)
-pub fn line(self : StringZipper) -> Int {
+pub fn StringZipper::line(self : StringZipper) -> Int {
   self.line
 }
 
 ///|
 /// Converts zipper to string and returns position info (internal helper)
-fn to_string_and_pos(self : StringZipper) -> (String, Int, Int) {
+fn StringZipper::to_string_and_pos(self : StringZipper) -> (String, Int, Int) {
   // Use StringBuilder for efficient string building
   let builder = StringBuilder::new()
 
@@ -63,7 +63,7 @@ fn to_string_and_pos(self : StringZipper) -> (String, Int, Int) {
 
 ///|
 /// Converts zipper to string
-pub fn to_string(self : StringZipper) -> String {
+pub fn StringZipper::to_string(self : StringZipper) -> String {
   let (s, _, _) = self.to_string_and_pos()
   s
 }
@@ -71,9 +71,9 @@ pub fn to_string(self : StringZipper) -> String {
 ///|
 /// Helper function to add string view to list if not empty
 fn cons(
-  view : @string.View,
-  list : @list.List[@string.View],
-) -> @list.List[@string.View] {
+  view : StringView,
+  list : @list.List[StringView],
+) -> @list.List[StringView] {
   if view.length() == 0 {
     list
   } else {
@@ -83,7 +83,7 @@ fn cons(
 
 ///|
 /// Creates a view by dropping the first n characters from the string view
-fn drop_view(view : @string.View, len : Int) -> @string.View {
+fn drop_view(view : StringView, len : Int) -> StringView {
   let view_len = view.length()
   if len >= view_len {
     "".view()
@@ -96,7 +96,7 @@ fn drop_view(view : @string.View, len : Int) -> @string.View {
 
 ///|
 /// Creates a view by taking the first n characters from the string view
-fn take_view(view : @string.View, len : Int) -> @string.View {
+fn take_view(view : StringView, len : Int) -> StringView {
   let view_len = view.length()
   if len >= view_len {
     view
@@ -109,13 +109,13 @@ fn take_view(view : @string.View, len : Int) -> @string.View {
 
 ///|
 /// Splits string view at position n, returns (prefix, suffix)
-fn split_view_at(view : @string.View, n : Int) -> (@string.View, @string.View) {
+fn split_view_at(view : StringView, n : Int) -> (StringView, StringView) {
   (take_view(view, n), drop_view(view, n))
 }
 
 ///|
 /// Finds the index of character c starting from position pos
-fn index_from_view(view : @string.View, pos~ : Int, c : Char) -> Int? {
+fn index_from_view(view : StringView, pos~ : Int, c : Char) -> Int? {
   let view_len = view.length()
   if pos < 0 || pos >= view_len {
     abort("index_from_view: out of bounds")
@@ -130,7 +130,7 @@ fn index_from_view(view : @string.View, pos~ : Int, c : Char) -> Int? {
 
 ///|
 /// Finds the last index of character c before position pos (searching backwards)
-fn rindex_from_view(view : @string.View, pos~ : Int, c : Char) -> Int? {
+fn rindex_from_view(view : StringView, pos~ : Int, c : Char) -> Int? {
   let view_len = view.length()
   if pos < 0 || pos > view_len {
     abort("rindex_from_view: out of bounds")
@@ -147,7 +147,7 @@ fn rindex_from_view(view : @string.View, pos~ : Int, c : Char) -> Int? {
 
 ///|
 /// Gets character at index i, throws if out of bounds
-fn get_char_exn(view : @string.View, i : Int) -> Char {
+fn get_char_exn(view : StringView, i : Int) -> Char {
   match view.get_char(i) {
     Some(c) => c
     None => abort("get_char_exn: out of bounds")
@@ -156,7 +156,7 @@ fn get_char_exn(view : @string.View, i : Int) -> Char {
 
 ///|
 /// Inserts text at the current cursor position
-pub fn insert(self : StringZipper, x : String) -> StringZipper {
+pub fn StringZipper::insert(self : StringZipper, x : String) -> StringZipper {
   if x.length() == 0 {
     return self
   }
@@ -186,7 +186,7 @@ pub fn insert(self : StringZipper, x : String) -> StringZipper {
 
 ///|
 /// Finds the next newline character (internal helper)
-fn find_next_nl(self : StringZipper) -> StringZipper {
+fn StringZipper::find_next_nl(self : StringZipper) -> StringZipper {
   if self.is_end_internal() {
     return self
   }
@@ -213,7 +213,10 @@ fn find_next_nl(self : StringZipper) -> StringZipper {
 
 ///|
 /// Goes to the specified line (forward direction) (internal helper)
-fn goto_line_forward(self : StringZipper, n : Int) -> StringZipper {
+fn StringZipper::goto_line_forward(
+  self : StringZipper,
+  n : Int,
+) -> StringZipper {
   if n == 0 {
     return self
   }
@@ -227,7 +230,7 @@ fn goto_line_forward(self : StringZipper, n : Int) -> StringZipper {
 
 ///|
 /// Finds the previous newline character (internal helper)
-fn prev_newline(self : StringZipper) -> StringZipper {
+fn StringZipper::prev_newline(self : StringZipper) -> StringZipper {
   if self.is_begin_internal() {
     return self
   }
@@ -253,7 +256,10 @@ fn prev_newline(self : StringZipper) -> StringZipper {
 
 ///|
 /// Goes to the specified line (backward direction) (internal helper)
-fn goto_line_backward(self : StringZipper, n : Int) -> StringZipper {
+fn StringZipper::goto_line_backward(
+  self : StringZipper,
+  n : Int,
+) -> StringZipper {
   if n == 0 {
     return self.beginning_of_line_internal()
   }
@@ -263,7 +269,7 @@ fn goto_line_backward(self : StringZipper, n : Int) -> StringZipper {
 
 ///|
 /// Goes to the specified line number
-pub fn goto_line(self : StringZipper, n : Int) -> StringZipper {
+pub fn StringZipper::goto_line(self : StringZipper, n : Int) -> StringZipper {
   if self.line == n {
     self.beginning_of_line_internal()
   } else if self.line > n {
@@ -275,7 +281,7 @@ pub fn goto_line(self : StringZipper, n : Int) -> StringZipper {
 
 ///|
 /// Goes to the end of the document
-pub fn goto_end(self : StringZipper) -> StringZipper {
+pub fn StringZipper::goto_end(self : StringZipper) -> StringZipper {
   if self.is_end_internal() {
     return self
   }
@@ -296,7 +302,10 @@ pub fn StringZipper::drop_until(
 ///|
 /// Goes to a specific position in the document
 /// Since MoonBit strings are UTF-16 encoded, character positions correspond to UTF-16 code units
-pub fn goto_position(self : StringZipper, position : Position) -> StringZipper {
+pub fn StringZipper::goto_position(
+  self : StringZipper,
+  position : Position,
+) -> StringZipper {
   let zipper = self.goto_line(position.line)
   zipper.advance_chars(position.character)
 }
@@ -304,7 +313,7 @@ pub fn goto_position(self : StringZipper, position : Position) -> StringZipper {
 ///|
 /// Applies a text change to the zipper
 /// Since MoonBit strings are UTF-16 encoded, character positions correspond to UTF-16 code units
-pub fn apply_change(
+pub fn StringZipper::apply_change(
   self : StringZipper,
   range : Range,
   replacement~ : String,
@@ -330,7 +339,7 @@ pub fn apply_change(
 ///|
 /// Squash the zipper and return the zipper with the string representation
 /// Corresponds to OCaml's squash : t -> t * string
-pub fn squash(self : StringZipper) -> (StringZipper, String) {
+pub fn StringZipper::squash(self : StringZipper) -> (StringZipper, String) {
   let str = self.to_string()
   let new_zipper = StringZipper::of_string(str)
   // Advance to the same position
@@ -353,7 +362,7 @@ pub fn squash(self : StringZipper) -> (StringZipper, String) {
 /// Debug representation of the zipper with cursor position
 /// Corresponds to OCaml's to_string_debug : t -> string
 /// Formats as: line N: "text|with|cursor" with escaped newlines
-pub fn to_string_debug(self : StringZipper) -> String {
+pub fn StringZipper::to_string_debug(self : StringZipper) -> String {
   let builder = StringBuilder::new()
 
   // Add left string views in reverse order (since they were prepended)
@@ -363,11 +372,10 @@ pub fn to_string_debug(self : StringZipper) -> String {
   }
 
   // Add current string view up to cursor position
-  let current_str = self.current.to_string()
-  let prefix = if self.rel_pos <= current_str.length() {
-    current_str.substring(start=0, end=self.rel_pos)
+  let prefix = if self.rel_pos <= self.current.length() {
+    self.current.view(end_offset=self.rel_pos).to_string()
   } else {
-    current_str
+    self.current.to_string()
   }
   builder.write_string(prefix)
 
@@ -375,8 +383,8 @@ pub fn to_string_debug(self : StringZipper) -> String {
   builder.write_string("|")
 
   // Add rest of current string view
-  let suffix = if self.rel_pos < current_str.length() {
-    current_str.substring(start=self.rel_pos)
+  let suffix = if self.rel_pos < self.current.length() {
+    self.current.view(start_offset=self.rel_pos).to_string()
   } else {
     ""
   }
