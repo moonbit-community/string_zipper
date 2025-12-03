@@ -10,30 +10,30 @@ pub struct Position {
   line : Int
   character : Int
 }
-fn Position::new(Int, Int) -> Self
+pub fn Position::new(Int, Int) -> Self
 
 pub struct Range {
   start : Position
   end : Position
 }
-fn Range::new(Position, Position) -> Self
+pub fn Range::new(Position, Position) -> Self
 
 pub struct StringZipper {
   // private fields
 }
-fn StringZipper::add_buffer_between(Self, StringBuilder, Self) -> Unit
-fn StringZipper::apply_change(Self, Range, replacement~ : String) -> Self
-fn StringZipper::drop_until(Self, Self) -> Self
-fn StringZipper::goto_end(Self) -> Self
-fn StringZipper::goto_line(Self, Int) -> Self
-fn StringZipper::goto_position(Self, Position) -> Self
-fn StringZipper::insert(Self, String) -> Self
-fn StringZipper::line(Self) -> Int
-fn StringZipper::of_string(String) -> Self
-fn StringZipper::offset(Self) -> Int
-fn StringZipper::squash(Self) -> (Self, String)
-fn StringZipper::to_string(Self) -> String
-fn StringZipper::to_string_debug(Self) -> String
+pub fn StringZipper::add_buffer_between(Self, StringBuilder, Self) -> Unit
+pub fn StringZipper::apply_change(Self, Range, replacement~ : String) -> Self
+pub fn StringZipper::drop_until(Self, Self) -> Self
+pub fn StringZipper::goto_end(Self) -> Self
+pub fn StringZipper::goto_line(Self, Int) -> Self
+pub fn StringZipper::goto_position(Self, Position) -> Self
+pub fn StringZipper::insert(Self, String) -> Self
+pub fn StringZipper::line(Self) -> Int
+pub fn StringZipper::of_string(String) -> Self
+pub fn StringZipper::offset(Self) -> Int
+pub fn StringZipper::squash(Self) -> (Self, String)
+pub fn StringZipper::to_string(Self) -> String
+pub fn StringZipper::to_string_debug(Self) -> String
 
 // Type aliases
 
