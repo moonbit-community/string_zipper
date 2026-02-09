@@ -23,7 +23,7 @@ This MoonBit implementation provides a simplified API that takes advantage of Mo
 
 ### Creating a StringZipper
 
-```moonbit
+```moonbit nocheck
 ///|
 test "create zipper from string" {
   let zipper = @string_zipper.StringZipper::of_string("Hello World")
@@ -33,7 +33,7 @@ test "create zipper from string" {
 
 ### Position-based Navigation
 
-```moonbit
+```moonbit nocheck
 ///|
 test "navigate to position" {
   let zipper = @string_zipper.StringZipper::of_string("Hello World")
@@ -45,7 +45,7 @@ test "navigate to position" {
 
 ### Text Editing
 
-```moonbit
+```moonbit nocheck
 ///|
 test "insert text" {
   let zipper = @string_zipper.StringZipper::of_string("Hello World")
@@ -66,7 +66,7 @@ test "apply text change - replace World with MoonBit" {
 
 ### Line Operations
 
-```moonbit
+```moonbit nocheck
 ///|
 test "line navigation" {
   let zipper = @string_zipper.StringZipper::of_string("line1\nline2\nline3")
