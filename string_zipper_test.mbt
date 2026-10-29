@@ -183,7 +183,7 @@ test "edge case: empty string operations" {
 ///|
 /// Operation types for the test framework
 enum Op {
-  GotoLine(Int)
+  GotoLine(Int32)
   Insert(String)
 } derive(Eq)
 
@@ -221,9 +221,9 @@ fn test_operations(
   mode : DisplayMode,
   start : @string_zipper.StringZipper,
   operations : Array[Op],
-  which? : TestMode = All,
+  which~ : TestMode = All,
 ) -> Array[String] {
-  let results = Array::new()
+  let results = Array()
   let mut current_zipper = start
 
   // Add initial state for All mode
@@ -255,7 +255,7 @@ fn test_operations(
 fn execute_and_format(
   start_text : String,
   operations : Array[Op],
-  which? : TestMode = All,
+  which~ : TestMode = All,
 ) -> Array[String] {
   let zipper = @string_zipper.StringZipper::of_string(start_text)
   test_operations(String, zipper, operations, which~)
@@ -568,7 +568,7 @@ test "ocaml add buffer between test" {
   let str = "foo\nbar"
   let t = @string_zipper.StringZipper::of_string(str)
   let t_at_line1 = t.goto_line(1)
-  let buffer = StringBuilder::new()
+  let buffer = StringBuilder()
   @string_zipper.StringZipper::add_buffer_between(t, buffer, t_at_line1)
   let result = buffer.to_string()
   inspect(result, content="bar")

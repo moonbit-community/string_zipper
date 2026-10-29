@@ -21,7 +21,7 @@ test "comprehensive edge case coverage" {
   let end_zipper = zipper.goto_end()
 
   // Try operations at end that might hit internal edge cases
-  let buffer = StringBuilder::new()
+  let buffer = StringBuilder()
   @string_zipper.StringZipper::add_buffer_between(
     end_zipper, buffer, end_zipper,
   )
