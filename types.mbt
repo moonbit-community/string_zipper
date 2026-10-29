@@ -3,14 +3,14 @@
 ///|
 /// Represents a position in a text document
 pub struct Position {
-  line : Int // 0-based line number
-  character : Int // 0-based character offset within the line
+  line : Int32 // 0-based line number
+  character : Int32 // 0-based character offset within the line
 }
 
 ///|
 /// Creates a new position
-pub fn Position::new(line : Int, character : Int) -> Position {
-  { line, character }
+pub fn Position::new(line : Int32, character : Int32) -> Position {
+  { line, character, }
 }
 
 ///|
@@ -23,5 +23,5 @@ pub struct Range {
 ///|
 /// Creates a new range
 pub fn Range::new(start : Position, end : Position) -> Range {
-  { start, end }
+  { start, end, }
 }

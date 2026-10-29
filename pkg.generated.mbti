@@ -7,10 +7,10 @@ package "bzy-debug/string_zipper"
 
 // Types and methods
 pub struct Position {
-  line : Int
-  character : Int
+  line : Int32
+  character : Int32
 }
-pub fn Position::new(Int, Int) -> Self
+pub fn Position::new(Int32, Int32) -> Self
 
 pub struct Range {
   start : Position
@@ -25,12 +25,12 @@ pub fn StringZipper::add_buffer_between(Self, StringBuilder, Self) -> Unit
 pub fn StringZipper::apply_change(Self, Range, replacement~ : String) -> Self
 pub fn StringZipper::drop_until(Self, Self) -> Self
 pub fn StringZipper::goto_end(Self) -> Self
-pub fn StringZipper::goto_line(Self, Int) -> Self
+pub fn StringZipper::goto_line(Self, Int32) -> Self
 pub fn StringZipper::goto_position(Self, Position) -> Self
 pub fn StringZipper::insert(Self, String) -> Self
-pub fn StringZipper::line(Self) -> Int
+pub fn StringZipper::line(Self) -> Int32
 pub fn StringZipper::of_string(String) -> Self
-pub fn StringZipper::offset(Self) -> Int
+pub fn StringZipper::offset(Self) -> Int32
 pub fn StringZipper::squash(Self) -> (Self, String)
 pub fn StringZipper::to_string(Self) -> String
 pub fn StringZipper::to_string_debug(Self) -> String
@@ -38,4 +38,3 @@ pub fn StringZipper::to_string_debug(Self) -> String
 // Type aliases
 
 // Traits
-

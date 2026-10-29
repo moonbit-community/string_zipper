@@ -6,20 +6,30 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
+env:
+  MOON_WORK: "off"
+
 jobs:
   check:
+    strategy:
+      fail-fast: false
+      matrix:
+        toolchain: [latest, nightly]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: |
-          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s 'pre-release'
-          echo "$HOME/.moon/bin" >> $GITHUB_PATH
+      - uses: hustcer/setup-moonbit@develop
+        with:
+          version: ${{ matrix.toolchain }}
       - name: moon check
-        run: moon check --deny-warn
+        run: moon check --target all --deny-warn
       - name: test
         run: |
-          moon test
-          moon test --release
+          moon test --target all --deny-warn
+          moon test --target all --release --deny-warn
       - name: moon info
         run: |
           moon info --target wasm,wasm-gc,js,native
@@ -33,9 +43,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: |
-          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
-          echo "$HOME/.moon/bin" >> $GITHUB_PATH
+      - uses: hustcer/setup-moonbit@develop
+        with:
+          version: latest
       - name: test
         run: |
           moon test --enable-coverage

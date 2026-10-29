@@ -8,10 +8,10 @@
 /// The main zipper data structure
 pub struct StringZipper {
   priv left : @list.List[StringView] // string views to the left of cursor
-  priv rel_pos : Int // cursor position within current string view
-  priv abs_pos : Int // total length of strings in left
+  priv rel_pos : Int32 // cursor position within current string view
+  priv abs_pos : Int32 // total length of strings in left
   priv current : StringView // current string view containing cursor
-  priv line : Int // number of '\n' characters traversed
+  priv line : Int32 // number of '\n' characters traversed
   priv right : @list.List[StringView] // string views to the right of cursor
 }
 
@@ -19,45 +19,47 @@ pub struct StringZipper {
 /// Creates a string zipper from a string
 pub fn StringZipper::of_string(s : String) -> StringZipper {
   {
-    left: @list.empty(),
+    left: @list.List([]),
     rel_pos: 0,
     abs_pos: 0,
     current: s.view(),
-    right: @list.empty(),
+    right: @list.List([]),
     line: 0,
   }
 }
 
 ///|
 /// Gets the absolute offset position of the cursor
-pub fn StringZipper::offset(self : StringZipper) -> Int {
+pub fn StringZipper::offset(self : StringZipper) -> Int32 {
   self.abs_pos + self.rel_pos
 }
 
 ///|
 /// Gets the current line number (0-based)
-pub fn StringZipper::line(self : StringZipper) -> Int {
+pub fn StringZipper::line(self : StringZipper) -> Int32 {
   self.line
 }
 
 ///|
 /// Converts zipper to string and returns position info (internal helper)
-fn StringZipper::to_string_and_pos(self : StringZipper) -> (String, Int, Int) {
+fn StringZipper::to_string_and_pos(
+  self : StringZipper,
+) -> (String, Int32, Int32) {
   // Use StringBuilder for efficient string building
-  let builder = StringBuilder::new()
+  let builder = StringBuilder()
 
   // Add left string views in reverse order (since they were prepended)
   let left_array = self.left.to_array()
   for i = left_array.length() - 1; i >= 0; i = i - 1 {
-    builder.write_string(left_array[i].to_string())
+    builder.write_string(left_array[i].to_owned())
   }
   let final_pos = builder.to_string().length() + self.rel_pos
 
   // Add current string view
-  builder.write_string(self.current.to_string())
+  builder.write_string(self.current.to_owned())
 
   // Add right string views
-  self.right.each(fn(view) { builder.write_string(view.to_string()) })
+  self.right.each(fn(view) { builder.write_string(view.to_owned()) })
   (builder.to_string(), final_pos, self.line)
 }
 
@@ -77,13 +79,13 @@ fn cons(
   if view.length() == 0 {
     list
   } else {
-    list.add(view)
+    list.prepend(view)
   }
 }
 
 ///|
 /// Creates a view by dropping the first n characters from the string view
-fn drop_view(view : StringView, len : Int) -> StringView {
+fn drop_view(view : StringView, len : Int32) -> StringView {
   let view_len = view.length()
   if len >= view_len {
     "".view()
@@ -96,7 +98,7 @@ fn drop_view(view : StringView, len : Int) -> StringView {
 
 ///|
 /// Creates a view by taking the first n characters from the string view
-fn take_view(view : StringView, len : Int) -> StringView {
+fn take_view(view : StringView, len : Int32) -> StringView {
   let view_len = view.length()
   if len >= view_len {
     view
@@ -109,13 +111,13 @@ fn take_view(view : StringView, len : Int) -> StringView {
 
 ///|
 /// Splits string view at position n, returns (prefix, suffix)
-fn split_view_at(view : StringView, n : Int) -> (StringView, StringView) {
+fn split_view_at(view : StringView, n : Int32) -> (StringView, StringView) {
   (take_view(view, n), drop_view(view, n))
 }
 
 ///|
 /// Finds the index of character c starting from position pos
-fn index_from_view(view : StringView, pos~ : Int, c : Char) -> Int? {
+fn index_from_view(view : StringView, pos~ : Int32, c : Char) -> Int32? {
   let view_len = view.length()
   if pos < 0 || pos >= view_len {
     abort("index_from_view: out of bounds")
@@ -130,7 +132,7 @@ fn index_from_view(view : StringView, pos~ : Int, c : Char) -> Int? {
 
 ///|
 /// Finds the last index of character c before position pos (searching backwards)
-fn rindex_from_view(view : StringView, pos~ : Int, c : Char) -> Int? {
+fn rindex_from_view(view : StringView, pos~ : Int32, c : Char) -> Int32? {
   let view_len = view.length()
   if pos < 0 || pos > view_len {
     abort("rindex_from_view: out of bounds")
@@ -147,7 +149,7 @@ fn rindex_from_view(view : StringView, pos~ : Int, c : Char) -> Int? {
 
 ///|
 /// Gets character at index i, throws if out of bounds
-fn get_char_exn(view : StringView, i : Int) -> Char {
+fn get_char_exn(view : StringView, i : Int32) -> Char {
   match view.get_char(i) {
     Some(c) => c
     None => abort("get_char_exn: out of bounds")
@@ -163,7 +165,7 @@ pub fn StringZipper::insert(self : StringZipper, x : String) -> StringZipper {
   let current = x.view()
   if self.rel_pos == 0 {
     // At the beginning of current string view
-    { ..self, current, right: cons(self.current, self.right) }
+    { ..self, current, right: cons(self.current, self.right), }
   } else if self.rel_pos == self.current.length() {
     // At the end of current string view
     let abs_pos = self.abs_pos + self.current.length()
@@ -180,7 +182,7 @@ pub fn StringZipper::insert(self : StringZipper, x : String) -> StringZipper {
     let abs_pos = self.abs_pos + l.length()
     let new_left = cons(l, self.left)
     let new_right = cons(r, self.right)
-    { ..self, current, rel_pos: 0, left: new_left, right: new_right, abs_pos }
+    { ..self, current, rel_pos: 0, left: new_left, right: new_right, abs_pos, }
   }
 }
 
@@ -194,7 +196,7 @@ fn StringZipper::find_next_nl(self : StringZipper) -> StringZipper {
     Some(rel_pos) => { ..self, rel_pos, }
     None =>
       match self.right {
-        Empty => { ..self, rel_pos: self.current.length() }
+        Empty => { ..self, rel_pos: self.current.length(), }
         More(current, tail=new_right) => {
           let abs_pos = self.abs_pos + self.current.length()
           let new_zipper = {
@@ -215,7 +217,7 @@ fn StringZipper::find_next_nl(self : StringZipper) -> StringZipper {
 /// Goes to the specified line (forward direction) (internal helper)
 fn StringZipper::goto_line_forward(
   self : StringZipper,
-  n : Int,
+  n : Int32,
 ) -> StringZipper {
   if n == 0 {
     return self
@@ -235,10 +237,10 @@ fn StringZipper::prev_newline(self : StringZipper) -> StringZipper {
     return self
   }
   match rindex_from_view(self.current, pos=self.rel_pos, '\n') {
-    Some(rel_pos) => { ..self, rel_pos, line: self.line - 1 }
+    Some(rel_pos) => { ..self, rel_pos, line: self.line - 1, }
     None =>
       match self.left {
-        Empty => { ..self, rel_pos: 0 }
+        Empty => { ..self, rel_pos: 0, }
         More(current, tail=new_left) => {
           let new_zipper = {
             ..self,
@@ -258,7 +260,7 @@ fn StringZipper::prev_newline(self : StringZipper) -> StringZipper {
 /// Goes to the specified line (backward direction) (internal helper)
 fn StringZipper::goto_line_backward(
   self : StringZipper,
-  n : Int,
+  n : Int32,
 ) -> StringZipper {
   if n == 0 {
     return self.beginning_of_line_internal()
@@ -269,7 +271,7 @@ fn StringZipper::goto_line_backward(
 
 ///|
 /// Goes to the specified line number
-pub fn StringZipper::goto_line(self : StringZipper, n : Int) -> StringZipper {
+pub fn StringZipper::goto_line(self : StringZipper, n : Int32) -> StringZipper {
   if self.line == n {
     self.beginning_of_line_internal()
   } else if self.line > n {
@@ -363,19 +365,19 @@ pub fn StringZipper::squash(self : StringZipper) -> (StringZipper, String) {
 /// Corresponds to OCaml's to_string_debug : t -> string
 /// Formats as: line N: "text|with|cursor" with escaped newlines
 pub fn StringZipper::to_string_debug(self : StringZipper) -> String {
-  let builder = StringBuilder::new()
+  let builder = StringBuilder()
 
   // Add left string views in reverse order (since they were prepended)
   let left_array = self.left.to_array()
   for i = left_array.length() - 1; i >= 0; i = i - 1 {
-    builder.write_string(left_array[i].to_string())
+    builder.write_string(left_array[i].to_owned())
   }
 
   // Add current string view up to cursor position
   let prefix = if self.rel_pos <= self.current.length() {
-    self.current.view(end_offset=self.rel_pos).to_string()
+    self.current.view(end_offset=self.rel_pos).to_owned()
   } else {
-    self.current.to_string()
+    self.current.to_owned()
   }
   builder.write_string(prefix)
 
@@ -384,14 +386,14 @@ pub fn StringZipper::to_string_debug(self : StringZipper) -> String {
 
   // Add rest of current string view
   let suffix = if self.rel_pos < self.current.length() {
-    self.current.view(start_offset=self.rel_pos).to_string()
+    self.current.view(start_offset=self.rel_pos).to_owned()
   } else {
     ""
   }
   builder.write_string(suffix)
 
   // Add right string views
-  self.right.each(fn(view) { builder.write_string(view.to_string()) })
+  self.right.each(fn(view) { builder.write_string(view.to_owned()) })
   builder.to_string()
 }
 
@@ -418,7 +420,7 @@ fn StringZipper::is_end_internal(self : StringZipper) -> Bool {
   if res {
     match self.right {
       Empty => ()
-      _ => abort("invalid state: current = \{self.current.to_string()}")
+      _ => abort("invalid state: current = \{self.current.to_owned()}")
     }
   }
   res
@@ -460,10 +462,10 @@ fn StringZipper::advance_char_internal(self : StringZipper) -> StringZipper {
   }
   let rel_pos = self.rel_pos + 1
   if rel_pos < current_len {
-    { ..self, rel_pos, line }
+    { ..self, rel_pos, line, }
   } else {
     match self.right {
-      Empty => { ..self, rel_pos, line }
+      Empty => { ..self, rel_pos, line, }
       More(current, tail=new_right) =>
         {
           abs_pos: self.abs_pos + self.current.length(),
@@ -482,7 +484,7 @@ fn StringZipper::advance_char_internal(self : StringZipper) -> StringZipper {
 /// Since MoonBit strings are UTF-16 encoded, this advances by UTF-16 code units
 fn StringZipper::advance_chars(
   self : StringZipper,
-  char_count : Int,
+  char_count : Int32,
 ) -> StringZipper {
   let mut zipper = self
   let mut chars_advanced = 0
@@ -511,7 +513,7 @@ fn drop_until_internal(
   match right {
     More(current, tail=new_right) => {
       let abs_pos = from.abs_pos + from.current.length()
-      { ..from, right: new_right, left, abs_pos, current, rel_pos: 0 }
+      { ..from, right: new_right, left, abs_pos, current, rel_pos: 0, }
     }
     Empty =>
       match left {
@@ -519,7 +521,7 @@ fn drop_until_internal(
         More(current, tail=new_left) => {
           let rel_pos = current.length()
           let abs_pos = from.abs_pos + rel_pos
-          { ..from, right, left: new_left, current, rel_pos, abs_pos }
+          { ..from, right, left: new_left, current, rel_pos, abs_pos, }
         }
       }
   }

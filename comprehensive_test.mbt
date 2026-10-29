@@ -139,7 +139,7 @@ test "add_buffer_between functionality" {
   let pos2 = @string_zipper.Position::new(0, 8)
   let zipper1 = zipper.goto_position(pos1)
   let zipper2 = zipper.goto_position(pos2)
-  let buffer = StringBuilder::new()
+  let buffer = StringBuilder()
   zipper1.add_buffer_between(buffer, zipper2)
   let result = buffer.to_string()
   inspect(result, content="herld")
