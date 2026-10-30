@@ -24,6 +24,7 @@ jobs:
       - uses: hustcer/setup-moonbit@develop
         with:
           version: ${{ matrix.toolchain }}
+          core-version: ${{ matrix.toolchain }}
       - name: moon check
         run: moon check --target all --deny-warn
       - name: test

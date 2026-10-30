@@ -261,6 +261,20 @@ test "stress test with many operations" {
 
   // The result should have insertions
   let final_result = zipper.to_string()
-  assert_true(final_result.find("0".view()) is Some(_))
-  assert_true(final_result.find("start".view()) is Some(_))
+  assert_true(final_result.find("0"[:]) is Some(_))
+  assert_true(final_result.find("start"[:]) is Some(_))
+}
+
+///|
+test "insertion preserves UTF-16 cursor offsets inside a surrogate pair" {
+  let text = "😀z"
+  let result = @string_zipper.StringZipper::of_string(text)
+    .goto_position(@string_zipper.Position::new(0, 1))
+    .insert("x")
+    .to_string()
+  assert_eq(result.length(), 4)
+  assert_eq(result[0], text[0])
+  assert_eq(result[1], "x"[0])
+  assert_eq(result[2], text[1])
+  assert_eq(result[3], text[2])
 }
