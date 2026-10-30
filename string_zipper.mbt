@@ -22,7 +22,7 @@ pub fn StringZipper::of_string(s : String) -> StringZipper {
     left: @list.List([]),
     rel_pos: 0,
     abs_pos: 0,
-    current: s.view(),
+    current: s[:],
     right: @list.List([]),
     line: 0,
   }
@@ -88,11 +88,11 @@ fn cons(
 fn drop_view(view : StringView, len : Int32) -> StringView {
   let view_len = view.length()
   if len >= view_len {
-    "".view()
+    ""[:]
   } else if len <= 0 {
     view
   } else {
-    view.view(start_offset=len)
+    raw_view(view, len, view_len)
   }
 }
 
@@ -103,9 +103,9 @@ fn take_view(view : StringView, len : Int32) -> StringView {
   if len >= view_len {
     view
   } else if len <= 0 {
-    "".view()
+    ""[:]
   } else {
-    view.view(end_offset=len)
+    raw_view(view, 0, len)
   }
 }
 
@@ -123,7 +123,7 @@ fn index_from_view(view : StringView, pos~ : Int32, c : Char) -> Int32? {
     abort("index_from_view: out of bounds")
   }
   // Use the view starting from the given position
-  let search_view = view.view(start_offset=pos)
+  let search_view = raw_view(view, pos, view.length())
   match search_view.find_by(fn(ch) { ch == c }) {
     Some(relative_idx) => Some(pos + relative_idx)
     None => None
@@ -162,7 +162,7 @@ pub fn StringZipper::insert(self : StringZipper, x : String) -> StringZipper {
   if x.length() == 0 {
     return self
   }
-  let current = x.view()
+  let current = x[:]
   if self.rel_pos == 0 {
     // At the beginning of current string view
     { ..self, current, right: cons(self.current, self.right), }
@@ -375,7 +375,7 @@ pub fn StringZipper::to_string_debug(self : StringZipper) -> String {
 
   // Add current string view up to cursor position
   let prefix = if self.rel_pos <= self.current.length() {
-    self.current.view(end_offset=self.rel_pos).to_owned()
+    raw_view(self.current, 0, self.rel_pos).to_owned()
   } else {
     self.current.to_owned()
   }
@@ -386,7 +386,7 @@ pub fn StringZipper::to_string_debug(self : StringZipper) -> String {
 
   // Add rest of current string view
   let suffix = if self.rel_pos < self.current.length() {
-    self.current.view(start_offset=self.rel_pos).to_owned()
+    raw_view(self.current, self.rel_pos, self.current.length()).to_owned()
   } else {
     ""
   }
@@ -525,4 +525,14 @@ fn drop_until_internal(
         }
       }
   }
+}
+
+///|
+// Cursor positions are UTF-16 code-unit offsets and can deliberately split a pair.
+// Keep the legacy bounds check before making an unadjusted view.
+fn raw_view(view : StringView, start : Int32, end : Int32) -> StringView {
+  guard start >= 0 && start <= end && end <= view.length() else {
+    abort("Invalid index for View")
+  }
+  view.unsafe_view(start~, end~)
 }
